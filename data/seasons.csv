@@ -1,6 +1,6 @@
 name,start,end,video,overlay,note
 Thanksgiving,11-16,11-28,,overlays/thanksgiving-leaves.png,"Autumn leaf border for the two weeks before Thanksgiving. Thanksgiving is the 4th Thursday of November (Nov 22 to 28), so this runs through Nov 28 every year. The video is unchanged."
-Christmas,12-01,12-31,videos/pepsi-christmas-tree.mp4,overlays/christmas-lights.png,"Swaps the Screen 3 video for December. To also draw a holiday overlay, type a file name from web/assets/overlays/ in the overlay column. Dates like 12-01 repeat every year; 2026-12-01 is one time only"
+Christmas,12-01,12-25,videos/pepsi-christmas-tree.mp4,overlays/christmas-lights.png,"Swaps the Screen 3 video for December. To also draw a holiday overlay, type a file name from web/assets/overlays/ in the overlay column. Dates like 12-01 repeat every year; 2026-12-01 is one time only"
 Overlay demo,,,,overlays/sample-candy-border.png,"Dates are blank, so this never turns on by itself. Pick it in the preview page to see what an overlay looks like"
 Valentine's Day,02-07,02-14,,overlays/valentines-hearts.png,"Hearts border, every year"
 St. Patrick's Day,03-10,03-17,,overlays/st-patricks-shamrocks.png,"Shamrock border, every year"
@@ -10,3 +10,5 @@ Easter 2027,2027-03-18,2027-03-28,,overlays/easter-eggs.png,"Easter is Sunday Ma
 Easter 2028,2028-04-06,2028-04-16,,overlays/easter-eggs.png,"Easter is Sunday Apr 16. Easter moves every year, so each year has its own row; add one for 2031 and later"
 Easter 2029,2029-03-22,2029-04-01,,overlays/easter-eggs.png,"Easter is Sunday Apr 01. Easter moves every year, so each year has its own row; add one for 2031 and later"
 Easter 2030,2030-04-11,2030-04-21,,overlays/easter-eggs.png,"Easter is Sunday Apr 21. Easter moves every year, so each year has its own row; add one for 2031 and later"
+Veterans Day,11-04,11-11,,overlays/veterans-day-flags.png,"Flags and stars, every year. The shop is closed Nov 11, and the border shows on the Closed picture too"
+New Year's Day,12-26,01-02,videos/pepsi-snowglobe.mp4,overlays/new-years-sparkle.png,"Sparkles, balloons and champagne, Dec 26 to Jan 2 every year (it runs over New Year). Plays the Snowglobe video; clear the video cell to keep the everyday one"
