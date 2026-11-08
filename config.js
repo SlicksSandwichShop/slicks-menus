@@ -21,7 +21,7 @@ window.SLICKS_CONFIG = {
 
   // The Sheet's own ID (the long code in its address, between /d/ and /edit). Only used by the
   // preview page's "draft" option, which shows the Sheet as it is right now, before you publish.
-  sheetId: "",
+  sheetId: "1Y2LF0AqO44cAkpEs89WMGku8x5wuPJYs7TeWSXh-jIA",
 
   // How often a screen re-reads the Sheet.
   refreshMinutes: 5,
