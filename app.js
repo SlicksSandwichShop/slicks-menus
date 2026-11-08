@@ -323,15 +323,27 @@
     var m = /^(\d{1,2}):(\d\d)$/.exec(hhmm || "");
     return m ? (+m[1]) * 60 + (+m[2]) : dflt;
   }
+  // closed_dates entries: 2026-11-26 (one day), 2026-11-26..2026-11-27 (a range),
+  // 11-11 (every year), 12-24..12-25 (a range, every year; may run over New Year).
+  function isClosedDate(list, iso, md) {
+    return list.some(function (e) {
+      if (!e) return false;
+      var p = e.split(".."), a = p[0].trim(), b = (p[1] || p[0]).trim();
+      if (/^\d{4}-/.test(a)) return iso >= a && iso <= b;
+      if (a <= b) return md >= a && md <= b;
+      return md >= a || md <= b;
+    });
+  }
   function schedule(now) {
     var c = data.cfg, day = DAYS[now.getUTCDay()];
     var iso = now.getUTCFullYear() + "-" + ("0" + (now.getUTCMonth() + 1)).slice(-2) + "-" + ("0" + now.getUTCDate()).slice(-2);
     var openDays = (c.open_days || "Mon,Tue,Wed,Thu,Fri").split(",").map(function (s) { return s.trim(); });
+    var md = iso.slice(5);                      // "11-11"
     var holidays = (c.closed_dates || "").split(",").map(function (s) { return s.trim(); });
     var t = now.getUTCHours() * 60 + now.getUTCMinutes();
     var bs = mins(c.breakfast_start, 390), ls = mins(c.lunch_start, 600), gc = mins(c.grill_close, 840), cl = mins(c.close, 870);
     var st = "closed";
-    if (openDays.indexOf(day) >= 0 && holidays.indexOf(iso) < 0 && t >= bs && t < cl) st = t < ls ? "breakfast" : "lunch";
+    if (openDays.indexOf(day) >= 0 && !isClosedDate(holidays, iso, md) && t >= bs && t < cl) st = t < ls ? "breakfast" : "lunch";
     return { state: st, day: day, grillClosed: st === "lunch" && t >= gc };
   }
 

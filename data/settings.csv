@@ -4,7 +4,7 @@ lunch_start,10:00,Lunch menu starts
 grill_close,14:00,Grill closes: the grill-closed bar appears at this time
 close,14:30,Shop closes: screens show the Closed image
 open_days,"Mon,Tue,Wed,Thu,Fri",Days the shop is open
-closed_dates,,"Holidays: dates like 2026-12-25, separated by commas. Screens show Closed all day."
+closed_dates,"11-11,2026-11-26..2026-11-27,12-24..12-25,01-01","Days the shop is closed (Closed picture all day). A date (2026-11-26), a range (2026-11-26..2026-11-27), or a yearly date or range with no year (11-11, 12-24..12-25). Separate entries with commas. Thanksgiving moves, so give it its year."
 special_days,"Wed,Thu,Fri",Days the Special slide shows (lunch only)
 menu_seconds,30,How long the menu stays up before the extra slide(s)
 menu_seconds_with_special,25,"Same, but on Special days (Wed/Thu/Fri lunch) when the Special slide also runs"
