@@ -1,0 +1,100 @@
+/*
+ * Slick's digital menus - layout.
+ *
+ * Everything is measured in pixels on a 3840x2160 canvas (the size of the old
+ * menu images) and scaled to the real screen by app.js. Measurements were taken
+ * from the original PNGs so the rebuilt menus line up with them.
+ */
+:root {
+  --rule: #206ba1;
+  --blue-text: #2f6dff;
+  --name: 66px;      /* item names and prices */
+  --desc: 47px;      /* item descriptions */
+  --note: 48px;      /* italic notes and footer */
+}
+html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+body { font-family: Arial, "Liberation Sans", Helvetica, sans-serif; font-weight: bold; color: #fff; }
+
+#stage { position: absolute; left: 0; top: 0; width: 3840px; height: 2160px; transform-origin: 0 0; background: #000; overflow: hidden; }
+.slide { position: absolute; inset: 0; display: none; }
+.slide.on { display: block; }
+.slide img.full, .slide video.full { position: absolute; inset: 0; width: 3840px; height: 2160px; object-fit: contain; background: #000; }
+
+/* holiday overlay: a transparent 3840x2160 picture drawn over every slide */
+.overlay { position: absolute; left: 0; top: 0; width: 3840px; height: 2160px; pointer-events: none; z-index: 20; }
+/* shown only when a preview source cannot be read */
+.err { position: absolute; left: 200px; right: 200px; top: 800px; font-size: 90px; line-height: 120px; color: #ff6b6b; text-align: center; }
+
+/* ---------- menu pages ---------- */
+.col { position: absolute; top: 48px; height: 2074px; }
+.cols2 .col1 { left: 50px;   width: 1845px; }
+.cols2 .col2 { left: 1945px; width: 1845px; }
+.cols3 .col1 { left: 50px;   width: 1213px; }
+.cols3 .col2 { left: 1313px; width: 1213px; }
+.cols3 .col3 { left: 2577px; width: 1213px; }
+
+.sec { margin-top: 74px; }
+.sec:first-child { margin-top: 0; }
+.title { display: flex; justify-content: space-between; align-items: flex-start;
+         height: 89px; border-bottom: 11px solid var(--rule); margin-bottom: 68px; }
+.title .t { font-size: 96px; line-height: 96px; letter-spacing: 3px; text-transform: uppercase; white-space: nowrap; }
+.title .sub { font-size: 49px; line-height: 49px; font-style: italic; letter-spacing: 1.5px; margin-top: 12px; white-space: nowrap; }
+.p-B3 .title, .p-L3 .title { margin-bottom: 34px; }
+.title.hasheads { margin-bottom: 0; }
+
+.heads { display: grid; grid-template-columns: 1fr 282px 282px 282px; padding-right: 24px;
+         height: 60px; margin-bottom: 7px; font-size: 48px; line-height: 60px; letter-spacing: 2px; }
+.heads span { text-align: right; }
+
+.item { position: relative; margin-bottom: 23px; }
+.row { display: grid; grid-template-columns: 1fr 282px 282px 282px; padding-right: 24px; height: 75px; line-height: 75px; font-size: var(--name); }
+.one .row { grid-template-columns: 1fr auto; }
+.row .n { min-width: 0; letter-spacing: 2px; white-space: nowrap; text-transform: uppercase; }
+.row .p { text-align: right; white-space: nowrap; letter-spacing: 0.5px; }
+.desc { font-size: var(--desc); line-height: 58px; margin-top: -4px; padding-bottom: 3px; padding-left: 37px; letter-spacing: 0.3px; }
+.sbc .desc { max-width: 1085px; }
+.cols2 .one .desc { max-width: 1535px; }
+.item.hasx .desc { max-width: 1300px; }
+.cols3 .one .desc { max-width: 990px; }
+.p-B3 .one .desc { max-width: 800px; }
+.xtra { position: absolute; right: 24px; top: 115px; line-height: 75px; font-size: var(--name); white-space: nowrap; }
+.xtra .xl { font-size: 60px; margin-right: 16px; }
+
+.note { font-size: var(--note); line-height: 57px; font-style: italic; letter-spacing: 1.2px; text-align: justify; text-transform: uppercase; padding-top: 4px; }
+.foot { position: absolute; left: 0; right: 0; bottom: 3px; }
+.foot .note { margin-top: 0; padding-top: 0; }
+.foot .note + .note { margin-top: 60px; }
+.foot .note.last { text-align: left; margin-top: 51px; white-space: nowrap; }
+.foot .note:first-child.last { margin-top: 0; }
+
+/* Facebook block */
+.social { text-align: center; }
+.social .follow { font-variant: small-caps; color: var(--blue-text); white-space: nowrap; }
+.social img { display: block; margin: 0 auto; }
+.social .handle { color: var(--blue-text); white-space: nowrap; }
+.p-B3 .social { position: absolute; left: 0; width: 1213px; top: 462px; }
+.p-B3 .social .follow { font-size: 96px; line-height: 110px; }
+.p-B3 .social img { width: 1195px; margin-top: 20px; }
+.p-B3 .social .handle { font-size: 86px; line-height: 100px; margin-top: 20px; }
+.p-L3 .social { margin-top: 33px; }
+.p-L3 .social .follow { font-size: 96px; line-height: 110px; }
+.p-L3 .social img { width: 925px; margin-top: 12px; }
+.p-L3 .social .handle { font-size: 86px; line-height: 100px; margin-top: 12px; }
+
+/* grill-closed bar (2:00 - 2:30) */
+.grillbar { position: absolute; left: 0; right: 0; bottom: 0; height: 130px; background: var(--rule); display: none;
+            align-items: center; justify-content: center; font-size: 66px; letter-spacing: 3px; text-align: center; z-index: 5; }
+.grillbar.on { display: flex; }
+
+/* ---------- specials ---------- */
+/* Title 236px, body 184px, 80% small caps - measured from the old slides.
+   Markers in the Sheet: ^ adds space after a line, ~ makes a line smaller. */
+.special .sc { font-size: 0.8em; line-height: 0; }
+.special .st { position: absolute; left: 0; right: 0; top: 51px; text-align: center; font-size: 236px; line-height: 236px; letter-spacing: 11.5px; }
+.special .sl { position: absolute; left: 0; right: 0; top: 469px; text-align: center; font-size: 184px; line-height: 222px; letter-spacing: 9.5px; }
+.special .sl .sm { font-size: 143px; letter-spacing: 15px; }
+.special .sl .gap { margin-bottom: 12px; }
+.special .photo { position: absolute; bottom: 0; }
+.special .photo.center { left: 1183px; width: 1469px; height: 990px; }
+.special .photo.left { left: 10px; width: 1472px; height: 990px; }
+.special .side { position: absolute; left: 1700px; width: 1920px; top: 1128px; text-align: center; font-size: 184px; line-height: 219px; letter-spacing: 9.5px; }

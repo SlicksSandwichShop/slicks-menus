@@ -1,0 +1,4 @@
+day,title,lines,price,photo,side_heading,side_lines
+Wed,Wednesday Lunch Special,^{price} off|~ANY BURGER COMBO,1.00,specials/wed.jpg,,
+Thu,Thursday Lunch Special,Chicken Tender Basket|French Fries and Medium Drink|{price} plus tax,12.81,specials/thu.jpg,,
+Fri,Friday Lunch Special,Catfish Plate with|French Fries,,specials/fri.jpg,Available Options,2 piece|3 piece|4 piece

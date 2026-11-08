@@ -1,0 +1,17 @@
+key,value,what_it_does
+breakfast_start,06:30,Breakfast menu starts (24-hour time)
+lunch_start,10:00,Lunch menu starts
+grill_close,14:00,Grill closes: the grill-closed bar appears at this time
+close,14:30,Shop closes: screens show the Closed image
+open_days,"Mon,Tue,Wed,Thu,Fri",Days the shop is open
+closed_dates,,"Holidays: dates like 2026-12-25, separated by commas. Screens show Closed all day."
+special_days,"Wed,Thu,Fri",Days the Special slide shows (lunch only)
+menu_seconds,30,How long the menu stays up before the extra slide(s)
+menu_seconds_with_special,25,"Same, but on Special days (Wed/Thu/Fri lunch) when the Special slide also runs"
+extra_seconds,5,"Seconds for each still extra slide (Condiments, Welcome, Special). Videos always play their full length"
+video,videos/pepsi-pour.mp4,The video on Screen 3 (file in web/assets/videos/). A season below can swap it for a while
+basket_add,3.39,Price added to a sandwich for a basket (the fries). Used when Basket is left blank and Calc is Y.
+combo_add,5.48,Price added to a sandwich for a combo (fries + large drink).
+footer,ALL PRICES ARE SUBJECT TO CHANGE AND DO NOT INCLUDE TAX,Line at the bottom left of every menu
+grill_closed_text,"THE GRILL IS NOW CLOSED. SALADS, SIDES, BAKERY ITEMS, AND DRINKS ONLY.",Bar shown at the bottom of lunch menus between grill close and shop close
+last_updated,,Type today's date when you change prices. Not shown on the TVs.

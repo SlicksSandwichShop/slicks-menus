@@ -1,0 +1,3 @@
+name,start,end,video,overlay,note
+Christmas,12-01,12-31,videos/pepsi-christmas-tree.mp4,,"Swaps the Screen 3 video for December. To also draw a holiday overlay, type a file name from web/assets/overlays/ in the overlay column. Dates like 12-01 repeat every year; 2026-12-01 is one time only"
+Overlay demo,,,,overlays/sample-candy-border.png,"Dates are blank, so this never turns on by itself. Pick it in the preview page to see what an overlay looks like"

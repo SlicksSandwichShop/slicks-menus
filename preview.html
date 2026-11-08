@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Slick's menu preview</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<!--
+  Preview page: see what each TV will show, at breakfast and at lunch, BEFORE it goes live.
+  Open it with preview.bat (Windows) or preview.command (Mac) so it runs on this computer.
+  Nothing here changes anything: it only looks.
+
+  "Where the prices come from" is the important choice:
+    local     the CSV files in web/data/  (edit sheet/*.csv, run check_sheet.py --sync)
+    draft     the Google Sheet as it is RIGHT NOW, including edits not yet published
+    live      what the TVs are showing (the published Sheet)
+-->
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 20px 24px 60px; background: #14161a; color: #e8eaed; font: 16px/1.45 Arial, "Liberation Sans", sans-serif; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 17px; margin: 28px 0 10px; color: #aecbfa; }
+  p.hint { margin: 2px 0 14px; color: #9aa0a6; max-width: 900px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; background: #1f2329; border: 1px solid #2e343b; border-radius: 10px; padding: 12px 16px; margin: 14px 0 6px; }
+  .bar label { cursor: pointer; }
+  .bar select { background: #14161a; color: #e8eaed; border: 1px solid #4a5058; border-radius: 6px; padding: 5px 8px; font-size: 15px; }
+  .src b { margin-right: 10px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 18px; }
+  .tile { width: 460px; }
+  .tile a { color: inherit; text-decoration: none; display: block; }
+  .frame { width: 460px; height: 259px; overflow: hidden; position: relative; background: #000; border: 2px solid #2e343b; border-radius: 6px; box-sizing: content-box; }
+  .tile a:hover .frame { border-color: #8ab4f8; }
+  .frame iframe { position: absolute; left: 0; top: 0; width: 3840px; height: 2160px; border: 0; transform: scale(0.11979); transform-origin: 0 0; pointer-events: none; }
+  .cap { margin-top: 6px; font-size: 15px; }
+  .cap small { color: #9aa0a6; display: block; }
+  .loops { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px 18px; max-width: 1100px; }
+  .loops a { display: block; padding: 10px 14px; background: #1f2329; border: 1px solid #2e343b; border-radius: 8px; color: #8ab4f8; text-decoration: none; }
+  .loops a:hover { border-color: #8ab4f8; }
+  .loops small { display: block; color: #9aa0a6; }
+  #warn { display: none; margin: 10px 0; padding: 10px 14px; border-radius: 8px; background: #3b2a12; border: 1px solid #7a5a1f; color: #ffd591; max-width: 900px; }
+</style>
+</head>
+<body>
+<h1>Slick's menu preview</h1>
+<p class="hint">Click any picture to open that screen full size in a new tab. Pictures are the real page, scaled down.</p>
+
+<div class="bar">
+  <div class="src"><b>Where the prices come from:</b>
+    <label><input type="radio" name="src" value="local" checked> My local files</label>&nbsp;&nbsp;
+    <label><input type="radio" name="src" value="draft"> The Sheet right now (draft)</label>&nbsp;&nbsp;
+    <label><input type="radio" name="src" value="live"> What the TVs show (published)</label>
+  </div>
+  <div><b>Season:</b> <select id="season"><option value="">Normal (by today's date)</option></select></div>
+</div>
+<div id="warn"></div>
+
+<h2>Breakfast (6:30 to 10:00)</h2>
+<div class="grid" id="g-breakfast"></div>
+
+<h2>Lunch (10:00 to 2:30)</h2>
+<div class="grid" id="g-lunch"></div>
+
+<h2>Lunch after the grill closes (2:00 to 2:30)</h2>
+<div class="grid" id="g-grill"></div>
+
+<h2>The other slides</h2>
+<div class="grid" id="g-extras"></div>
+
+<h2>Watch a whole screen run, like the TV does</h2>
+<p class="hint">Opens a screen at a pretend day and time and lets it run in real time, so you see the menu, then the extra slides, in order. (Wednesday is used so the Special shows at lunch.)</p>
+<div class="loops" id="loops"></div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (id) { return document.getElementById(id); };
+
+  function src() { return document.querySelector('input[name="src"]:checked').value; }
+  function qs(extra, thumb) {
+    var a = [extra, "data=" + src()];
+    if ($("season").value) a.push("season=" + encodeURIComponent($("season").value));
+    if (thumb) a.push("nosw=1", "still=1");
+    return a.join("&");
+  }
+  function url(screen, extra, thumb) { return "index.html?screen=" + screen + "&" + qs(extra, thumb); }
+
+  function tile(host, screen, extra, title, sub) {
+    var d = document.createElement("div"); d.className = "tile";
+    var a = document.createElement("a"); a.href = url(screen, extra, false); a.target = "_blank"; a.rel = "noopener";
+    var f = document.createElement("div"); f.className = "frame";
+    var i = document.createElement("iframe"); i.loading = "lazy"; i.src = url(screen, extra, true); i.title = title;
+    f.appendChild(i); a.appendChild(f);
+    var c = document.createElement("div"); c.className = "cap"; c.textContent = title;
+    if (sub) { var s = document.createElement("small"); s.textContent = sub; c.appendChild(s); }
+    a.appendChild(c); d.appendChild(a); $(host).appendChild(d);
+  }
+
+  function nextWednesday() {
+    var d = new Date(); d.setDate(d.getDate() + ((3 - d.getDay() + 7) % 7));
+    return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+  }
+
+  function draw() {
+    ["g-breakfast", "g-lunch", "g-grill", "g-extras", "loops"].forEach(function (id) { $(id).innerHTML = ""; });
+    for (var n = 1; n <= 3; n++) {
+      tile("g-breakfast", n, "show=B" + n, "Screen " + n + " - Breakfast");
+      tile("g-lunch", n, "show=L" + n, "Screen " + n + " - Lunch");
+      tile("g-grill", n, "show=L" + n + "&grill=1", "Screen " + n + " - Lunch, grill closed");
+    }
+    tile("g-extras", 1, "show=extra:0", "Screen 1 - Condiments");
+    tile("g-extras", 2, "show=extra:0", "Screen 2 - Welcome");
+    tile("g-extras", 3, "show=extra:0", "Screen 3 - Video", "Plays in full on the TV; here it shows one frame");
+    ["Wed", "Thu", "Fri"].forEach(function (dname) {
+      tile("g-extras", 3, "show=special:" + dname, "Screen 3 - " + { Wed: "Wednesday", Thu: "Thursday", Fri: "Friday" }[dname] + " Special", "Lunch only");
+    });
+    tile("g-extras", 1, "show=closed", "Closed (evenings, weekends, holidays)");
+
+    var wed = nextWednesday(), L = $("loops");
+    var times = [["Breakfast", "08:00:00"], ["Lunch", "11:00:00"], ["Lunch, grill closed", "14:10:00"]];
+    for (var s = 1; s <= 3; s++) times.forEach(function (t) {
+      var a = document.createElement("a"); a.target = "_blank"; a.rel = "noopener";
+      a.href = url(s, "now=" + wed + "T" + t[1], false);
+      a.innerHTML = "Screen " + s + " - " + t[0] + "<small>runs from Wednesday " + t[1].slice(0, 5) + "</small>";
+      L.appendChild(a);
+    });
+    var w = $("warn");
+    if (src() === "draft") { w.style.display = "block"; w.textContent = "Draft shows the Google Sheet as it is right now. It needs the Sheet's ID in config.js (sheetId) and the Sheet shared as 'Anyone with the link can view'. If a picture shows a red message, that setup is not done yet."; }
+    else if (src() === "live") { w.style.display = "block"; w.textContent = "Live shows exactly what the TVs read: the published Sheet. It needs the published links in config.js. A red message means a link is missing."; }
+    else w.style.display = "none";
+  }
+
+  // season names come from the local seasons file
+  fetch("data/seasons.csv").then(function (r) { return r.text(); }).then(function (t) {
+    t.split(/\r?\n/).slice(1).forEach(function (line) {
+      var name = line.split(",")[0].replace(/"/g, "").trim();
+      if (name) { var o = document.createElement("option"); o.value = name; o.textContent = name; $("season").appendChild(o); }
+    });
+  }).catch(function () {}).then(draw);
+
+  document.querySelectorAll('input[name="src"]').forEach(function (r) { r.addEventListener("change", draw); });
+  $("season").addEventListener("change", draw);
+})();
+</script>
+</body>
+</html>
