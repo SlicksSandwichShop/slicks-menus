@@ -1,4 +1,4 @@
 name,start,end,video,overlay,note
 Thanksgiving,11-16,11-28,,overlays/thanksgiving-leaves.png,"Autumn leaf border for the two weeks before Thanksgiving. Thanksgiving is the 4th Thursday of November (Nov 22 to 28), so this runs through Nov 28 every year. The video is unchanged."
-Christmas,12-01,12-31,videos/pepsi-christmas-tree.mp4,,"Swaps the Screen 3 video for December. To also draw a holiday overlay, type a file name from web/assets/overlays/ in the overlay column. Dates like 12-01 repeat every year; 2026-12-01 is one time only"
+Christmas,12-01,12-31,videos/pepsi-christmas-tree.mp4,overlays/sample-candy-border.png,"Swaps the Screen 3 video for December. To also draw a holiday overlay, type a file name from web/assets/overlays/ in the overlay column. Dates like 12-01 repeat every year; 2026-12-01 is one time only"
 Overlay demo,,,,overlays/sample-candy-border.png,"Dates are blank, so this never turns on by itself. Pick it in the preview page to see what an overlay looks like"
