@@ -304,6 +304,27 @@
     return s;
   }
 
+  /* ---------------- reading dates typed into the Sheet ---------------- */
+  // A spreadsheet likes to "help" by turning 02-07 into a real date, which then comes out as
+  // 7-Feb or 2/7/2027. Accept every shape it is likely to produce and turn it into one of
+  //   "02-07"        (every year)        "2027-02-07"   (that day only)
+  // Anything that is not a real date gives "" and is IGNORED, never matched by accident.
+  var MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+  function p2(n) { return ("0" + n).slice(-2); }
+  function normDate(v) {
+    v = String(v || "").trim();
+    var m, y = "", mo, da;
+    if ((m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(v))) { y = m[1]; mo = +m[2]; da = +m[3]; }
+    else if ((m = /^(\d{1,2})-(\d{1,2})$/.exec(v))) { mo = +m[1]; da = +m[2]; }
+    else if ((m = /^(\d{1,2})[- ]([A-Za-z]{3})[a-z]*(?:[- ,]+(\d{2,4}))?$/.exec(v))) { da = +m[1]; mo = MONTHS[m[2].toLowerCase()]; y = m[3] || ""; }
+    else if ((m = /^([A-Za-z]{3})[a-z]*[- ](\d{1,2})(?:[- ,]+(\d{2,4}))?$/.exec(v))) { mo = MONTHS[m[1].toLowerCase()]; da = +m[2]; y = m[3] || ""; }
+    else if ((m = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/.exec(v))) { mo = +m[1]; da = +m[2]; y = m[3] || ""; }
+    else return "";
+    if (!mo || mo < 1 || mo > 12 || !da || da < 1 || da > 31) return "";
+    if (y && y.length === 2) y = "20" + y;
+    return (y ? y + "-" : "") + p2(mo) + "-" + p2(da);
+  }
+
   /* ---------------- shop clock and schedule ---------------- */
   var fakeBase = null, fakeStart = Date.now();
   if (Q.get("now")) {
@@ -328,8 +349,9 @@
   function isClosedDate(list, iso, md) {
     return list.some(function (e) {
       if (!e) return false;
-      var p = e.split(".."), a = p[0].trim(), b = (p[1] || p[0]).trim();
-      if (/^\d{4}-/.test(a)) return iso >= a && iso <= b;
+      var p = e.split(".."), a = normDate(p[0]), b = normDate(p[1] || p[0]);
+      if (!a || !b || (a.length !== b.length)) return false;            // not a real date (or mixed styles): ignore
+      if (a.length === 10) return iso >= a && iso <= b;
       if (a <= b) return md >= a && md <= b;
       return md >= a || md <= b;
     });
@@ -395,9 +417,9 @@
     var md = ("0" + (now.getUTCMonth() + 1)).slice(-2) + "-" + ("0" + now.getUTCDate()).slice(-2);
     var full = now.getUTCFullYear() + "-" + md;
     for (i = 0; i < list.length; i++) {
-      var a = list[i].start, b = list[i].end;
-      if (!a || !b) continue;
-      if (/^\d{4}-/.test(a)) { if (full >= a && full <= b) return list[i]; }
+      var a = normDate(list[i].start), b = normDate(list[i].end);
+      if (!a || !b || a.length !== b.length) continue;                  // blank, not a real date, or mixed styles: never matches
+      if (a.length === 10) { if (full >= a && full <= b) return list[i]; }
       else if (a <= b) { if (md >= a && md <= b) return list[i]; }
       else if (md >= a || md <= b) return list[i];
     }
