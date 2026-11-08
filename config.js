@@ -12,11 +12,11 @@ window.SLICKS_CONFIG = {
   // pick the tab > CSV). Leave a link empty and the page uses the copy bundled
   // in web/data/ instead. See sheet/README.md.
   sheetCsv: {
-    items: "",
-    sections: "",
-    specials: "",
-    settings: "",
-    seasons: ""
+    items: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwd_wmQatWaApIe3pzhEdSXNroaG9krZcEVebmksIfFk1NgtbnrJWPRfiRnbCbPtNPeCP63EYZiMxK/pub?gid=1321754203&single=true&output=csv",
+    sections: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwd_wmQatWaApIe3pzhEdSXNroaG9krZcEVebmksIfFk1NgtbnrJWPRfiRnbCbPtNPeCP63EYZiMxK/pub?gid=1220500282&single=true&output=csv",
+    specials: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwd_wmQatWaApIe3pzhEdSXNroaG9krZcEVebmksIfFk1NgtbnrJWPRfiRnbCbPtNPeCP63EYZiMxK/pub?gid=454401100&single=true&output=csv",
+    settings: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwd_wmQatWaApIe3pzhEdSXNroaG9krZcEVebmksIfFk1NgtbnrJWPRfiRnbCbPtNPeCP63EYZiMxK/pub?gid=337377018&single=true&output=csv",
+    seasons: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRwd_wmQatWaApIe3pzhEdSXNroaG9krZcEVebmksIfFk1NgtbnrJWPRfiRnbCbPtNPeCP63EYZiMxK/pub?gid=763668556&single=true&output=csv"
   },
 
   // The Sheet's own ID (the long code in its address, between /d/ and /edit). Only used by the
