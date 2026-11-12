@@ -12,6 +12,7 @@
  *   ?now=2026-11-11T11:00  pretend it is this shop time (testing)
  *   ?show=L1|B2|closed|special:Wed|extra:0   freeze on one slide (testing)
  *   ?grill=1               force the grill-closed bar (testing)
+ *   ?closed=picture        show the fixed Closed picture instead of the live Closed screen (testing)
  *   ?freeze=1              with ?now=, stop the fake clock from advancing (testing)
  *   ?data=local|live|draft use exactly one data source, for previewing. local = the files in
  *                          data/, live = the published Sheet (what the TVs read), draft = the
@@ -346,27 +347,110 @@
   }
   // closed_dates entries: 2026-11-26 (one day), 2026-11-26..2026-11-27 (a range),
   // 11-11 (every year), 12-24..12-25 (a range, every year; may run over New Year).
-  function isClosedDate(list, iso, md) {
-    return list.some(function (e) {
-      if (!e) return false;
-      var p = e.split(".."), a = normDate(p[0]), b = normDate(p[1] || p[0]);
-      if (!a || !b || (a.length !== b.length)) return false;            // not a real date (or mixed styles): ignore
-      if (a.length === 10) return iso >= a && iso <= b;
-      if (a <= b) return md >= a && md <= b;
-      return md >= a || md <= b;
-    });
+  // Any entry may carry a reason after "=", shown on the Closed screen that day:
+  // 11-11=Veterans Day, 2026-11-20=a water main repair. Reasons cannot contain a comma.
+  // Returns the matching entry's reason ("" when it has none), or null when the date is not listed.
+  function closedReason(list, iso, md) {
+    for (var i = 0; i < list.length; i++) {
+      var e = list[i], eq = e.indexOf("="), dates = eq < 0 ? e : e.slice(0, eq);
+      if (!dates.trim()) continue;
+      var p = dates.split(".."), a = normDate(p[0]), b = normDate(p[1] || p[0]);
+      if (!a || !b || (a.length !== b.length)) continue;                // not a real date (or mixed styles): ignore
+      var hit = a.length === 10 ? (iso >= a && iso <= b) : (a <= b ? (md >= a && md <= b) : (md >= a || md <= b));
+      if (hit) return eq < 0 ? "" : e.slice(eq + 1).trim();
+    }
+    return null;
+  }
+  // What one calendar day is: its weekday, whether the shop opens at all, and why not.
+  function dayInfo(d) {
+    var c = data.cfg, day = DAYS[d.getUTCDay()];
+    var iso = d.getUTCFullYear() + "-" + p2(d.getUTCMonth() + 1) + "-" + p2(d.getUTCDate());
+    var openDays = (c.open_days || "Mon,Tue,Wed,Thu,Fri").split(",").map(function (s) { return s.trim(); });
+    var holidays = (c.closed_dates || "").split(",").map(function (s) { return s.trim(); });
+    var reason = closedReason(holidays, iso, iso.slice(5));
+    return { day: day, iso: iso, listed: reason !== null, reason: reason || "", opens: openDays.indexOf(day) >= 0 && reason === null };
   }
   function schedule(now) {
-    var c = data.cfg, day = DAYS[now.getUTCDay()];
-    var iso = now.getUTCFullYear() + "-" + ("0" + (now.getUTCMonth() + 1)).slice(-2) + "-" + ("0" + now.getUTCDate()).slice(-2);
-    var openDays = (c.open_days || "Mon,Tue,Wed,Thu,Fri").split(",").map(function (s) { return s.trim(); });
-    var md = iso.slice(5);                      // "11-11"
-    var holidays = (c.closed_dates || "").split(",").map(function (s) { return s.trim(); });
+    var c = data.cfg, info = dayInfo(now);
     var t = now.getUTCHours() * 60 + now.getUTCMinutes();
     var bs = mins(c.breakfast_start, 390), ls = mins(c.lunch_start, 600), gc = mins(c.grill_close, 840), cl = mins(c.close, 870);
     var st = "closed";
-    if (openDays.indexOf(day) >= 0 && !isClosedDate(holidays, iso, md) && t >= bs && t < cl) st = t < ls ? "breakfast" : "lunch";
-    return { state: st, day: day, grillClosed: st === "lunch" && t >= gc };
+    if (info.opens && t >= bs && t < cl) st = t < ls ? "breakfast" : "lunch";
+    return { state: st, day: info.day, grillClosed: st === "lunch" && t >= gc };
+  }
+
+  /* ---------------- the live Closed screen ---------------- */
+  // Drawn by the page instead of a fixed picture, so it can say why the shop is closed today
+  // and when it opens next, and so the hours always match the Sheet.
+  var DAYNAMES = { Sun: "Sunday", Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday" };
+  var MONTHNAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function clock(m) {            // 390 -> { t: "6:30", ap: "am" }
+    var h = Math.floor(m / 60), mm = m % 60;
+    return { t: ((h + 11) % 12 + 1) + ":" + p2(mm), ap: h < 12 ? "am" : "pm" };
+  }
+  function span(a, b) {          // "6:30 – 10:00 am", "10:00 am – 2:30 pm"
+    var x = clock(a), y = clock(b);
+    return x.t + (x.ap === y.ap ? "" : " " + x.ap) + " – " + y.t + " " + y.ap;
+  }
+  function openDaysText() {      // "Monday – Friday" when the days run in a row, otherwise a list
+    var c = data.cfg, order = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    var days = (c.open_days || "Mon,Tue,Wed,Thu,Fri").split(",").map(function (s) { return s.trim(); });
+    var idx = order.map(function (d, i) { return days.indexOf(d) >= 0 ? i : -1; }).filter(function (i) { return i >= 0; });
+    if (!idx.length) return "";
+    var inRow = idx[idx.length - 1] - idx[0] === idx.length - 1;
+    if (inRow && idx.length > 2) return DAYNAMES[order[idx[0]]] + " – " + DAYNAMES[order[idx[idx.length - 1]]];
+    return idx.map(function (i) { return DAYNAMES[order[i]]; }).join(", ");
+  }
+  // The words for right now. Looks up to a year ahead for the next day the shop opens.
+  function closedText(now) {
+    var c = data.cfg, bs = mins(c.breakfast_start, 390), ls = mins(c.lunch_start, 600), cl = mins(c.close, 870);
+    var t = now.getUTCHours() * 60 + now.getUTCMinutes(), today = dayInfo(now);
+    var at = clock(bs), when = "", back = "";
+    for (var n = 0; n <= 370; n++) {
+      var d = new Date(now.getTime() + n * 86400000), info = dayInfo(d);
+      if (!info.opens || (n === 0 && t >= bs)) continue;
+      if (n === 0) when = "Open today";
+      else if (n === 1) when = "Back tomorrow";
+      else if (n < 7) when = "Back " + DAYNAMES[info.day];
+      else when = "Back " + DAYNAMES[info.day] + ", " + MONTHNAMES[d.getUTCMonth()] + " " + d.getUTCDate();
+      back = when + " at " + at.t + " " + at.ap;
+      break;
+    }
+    var why = "";
+    if (today.listed) why = today.reason ? "Closed today for " + today.reason : "Closed all day today";
+    return { why: why, back: back,
+             hours: openDaysText() + "  •  Breakfast " + span(bs, ls) + "  •  Lunch " + span(ls, cl) };
+  }
+  function buildClosed() {
+    var root = el("div", "slide closed");
+    var logo = el("img", "logo"); logo.src = CFG.logoImage; root.appendChild(logo);
+    root.appendChild(el("div", "sorry", "SORRY, WE’RE"));
+    root.appendChild(el("div", "big", "CLOSED"));
+    root.appendChild(el("div", "rule"));
+    var info = el("div", "info");
+    var why = el("div", "why"), back = el("div", "back"), hours = el("div", "hours");
+    [why, back, hours].forEach(function (x) { info.appendChild(x); });
+    info.appendChild(el("div", "web", CFG.website || ""));
+    root.appendChild(info);
+    var last = "";
+    var pen = document.createElement("canvas").getContext("2d");
+    function set(node, text, size, room) {      // shrink a long line so it never runs off the screen
+      node.textContent = text;
+      node.style.display = text ? "" : "none";
+      pen.font = "bold 100px Arial, 'Liberation Sans', Helvetica, sans-serif";
+      var w = pen.measureText(text).width || 1;
+      node.style.fontSize = Math.min(size, Math.floor(room * 100 / w)) + "px";
+    }
+    function update(now) {
+      var x = closedText(now), key = x.why + "|" + x.back + "|" + x.hours;
+      if (key === last) return;
+      last = key;
+      root.classList.toggle("hasreason", !!x.why);
+      set(why, x.why.toUpperCase(), 150, 3380);
+      set(back, x.back.toUpperCase(), x.why ? 170 : 200, 3380);
+      set(hours, x.hours, 110, 3380);
+    }
+    return { el: root, update: update };
   }
 
   /* ---------------- rotation ---------------- */
@@ -462,6 +546,7 @@
     var id = pickSlide(now, sch);
     var grill = Q.get("grill") === "1" || sch.grillClosed;
     Object.keys(slides).forEach(function (k) { if (slides[k].bar) slides[k].bar.classList.toggle("on", grill); });
+    if (slides.closed && slides.closed.update) slides.closed.update(now);
     show(id);
   }
 
@@ -482,7 +567,13 @@
       }
     });
     ["Wed", "Thu", "Fri", "Mon", "Tue"].forEach(function (d) { var sp = buildSpecial(d); if (sp) slides["special:" + d] = sp; });
-    slides.closed = buildImage(CFG.closedImage);
+    // Live Closed screen; the fixed picture if it is switched off, asked for, or fails to build.
+    slides.closed = null;
+    if (CFG.closedLive && Q.get("closed") !== "picture") {
+      try { slides.closed = buildClosed(); slides.closed.update(shopNow()); }
+      catch (e) { console.warn("live Closed screen failed, using the picture", e); slides.closed = null; }
+    }
+    if (!slides.closed) slides.closed = buildImage(CFG.closedImage);
     Object.keys(slides).forEach(function (k) { stage.appendChild(slides[k].el); });
     if (season && season.overlay) {
       var ov = el("img", "overlay"); ov.src = "assets/" + season.overlay; stage.appendChild(ov);

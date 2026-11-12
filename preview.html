@@ -113,7 +113,9 @@
     ["Wed", "Thu", "Fri"].forEach(function (dname) {
       tile("g-extras", 3, "show=special:" + dname, "Screen 3 - " + { Wed: "Wednesday", Thu: "Thursday", Fri: "Friday" }[dname] + " Special", "Lunch only");
     });
-    tile("g-extras", 1, "show=closed", "Closed (evenings, weekends, holidays)");
+    tile("g-extras", 1, "show=closed", "Closed (right now)", "Live: says when the shop opens next");
+    tile("g-extras", 1, "show=closed&freeze=1&now=2026-11-26T09:00", "Closed on a holiday", "Thanksgiving 2026, with its reason from closed_dates");
+    tile("g-extras", 1, "show=closed&closed=picture", "Closed - the fallback picture", "Only used if the live Closed screen is switched off or fails");
 
     var wed = nextWednesday(), L = $("loops");
     var times = [["Breakfast", "08:00:00"], ["Lunch", "11:00:00"], ["Lunch, grill closed", "14:10:00"]];

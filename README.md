@@ -7,7 +7,11 @@ The web page the TVs show. One page, three screens: each Pi opens it with
 
 - Shows **breakfast** 6:30 am - 10:00 am, **lunch** 10:00 am - 2:30 pm,
   Monday to Friday. Any other time, and any date listed as a holiday, it shows
-  the Closed picture. (All times and days come from the Google Sheet.)
+  the **Closed screen**. (All times and days come from the Google Sheet.)
+- The Closed screen is drawn live: on a date listed in the Sheet's `closed_dates` it says
+  why ("CLOSED TODAY FOR THANKSGIVING", from a reason typed after the date), and it always
+  says when the shop opens next and the hours. If it is switched off (`closedLive: false`
+  in `config.js`) or fails, a fixed picture (`assets/closed-racing.jpeg`) is shown instead.
 - From 2:00 pm to 2:30 pm it adds a **"grill is closed" bar** across the bottom
   of the lunch menu.
 - Each screen runs a loop: the menu, then its extra slide(s).
@@ -90,7 +94,7 @@ Close the black preview window when you are done. (Mac: the first time, right-cl
 | `sw.js` | Offline cache. Raise the number in `CACHE` when you change a file in `assets/` |
 | `preview.html`, `preview.bat`, `preview.command` | The preview page and its double-click launchers |
 | `data/*.csv` | Bundled copy of the Sheet (kept in step by `sheet/check_sheet.py --sync`) |
-| `assets/` | Closed, Condiments, Welcome, Facebook laptop picture, Special photos |
+| `assets/` | Closed fallback picture, the logo used by the live Closed screen, Condiments, Welcome, Facebook laptop picture, Special photos |
 | `assets/videos/` | The Pepsi videos (swap by file name in the Sheet) |
 | `assets/overlays/` | Holiday overlays (transparent 3840x2160 PNGs). `sample-candy-border.png` is a placeholder |
 
@@ -127,6 +131,7 @@ Options added to the address (nothing to do with normal running):
 | `&freeze=1` | With `now`, stop the pretend clock moving |
 | `&show=L1` | Hold one slide: `B1`..`L3`, `closed`, `extra:0`, `special:Wed` |
 | `&grill=1` | Force the grill-closed bar |
+| `&closed=picture` | Show the fixed Closed picture instead of the live Closed screen |
 | `&data=local` / `draft` / `live` | Use exactly one data source (see Preview) |
 | `&season=Christmas` | Force a season |
 | `&still=1` | Show a video as one still frame (used by the preview thumbnails) |

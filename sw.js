@@ -11,11 +11,11 @@
  *
  * Bump CACHE when you change any file under assets/ so Pis fetch the new one.
  */
-var CACHE = "slicks-menus-v3";
+var CACHE = "slicks-menus-v4";
 var SHELL = [
   "./", "index.html", "menu.css", "app.js", "config.js",
   "data/items.csv", "data/sections.csv", "data/specials.csv", "data/settings.csv", "data/seasons.csv",
-  "assets/closed.jpeg", "assets/condiments.png", "assets/welcome.png", "assets/facebook-laptop.png",
+  "assets/closed-racing.jpeg", "assets/logo-outline.png", "assets/condiments.png", "assets/welcome.png", "assets/facebook-laptop.png",
   "assets/specials/wed.jpg", "assets/specials/thu.jpg", "assets/specials/fri.jpg",
   "assets/videos/pepsi-pour.mp4"
 ];

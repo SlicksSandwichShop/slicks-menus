@@ -37,6 +37,12 @@ window.SLICKS_CONFIG = {
     3: [{ type: "video", src: "assets/videos/pepsi-pour.mp4" }, { type: "special" }]
   },
 
-  closedImage: "assets/closed.jpeg",
+  // The Closed screen. true = drawn live by the page: it says why the shop is closed today (a
+  // reason typed after a date in the Sheet's closed_dates), when it opens next, and the hours
+  // from the Sheet. false = the fixed picture below, as before.
+  closedLive: true,
+  closedImage: "assets/closed-racing.jpeg",
+  logoImage: "assets/logo-outline.png",
+  website: "www.SlicksMenu.com",
   facebookImage: "assets/facebook-laptop.png"
 };

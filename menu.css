@@ -86,6 +86,20 @@ body { font-family: Arial, "Liberation Sans", Helvetica, sans-serif; font-weight
             align-items: center; justify-content: center; font-size: 66px; letter-spacing: 3px; text-align: center; z-index: 5; }
 .grillbar.on { display: flex; }
 
+/* ---------- live Closed screen ---------- */
+/* Everything stays 210px in from the edge so a holiday border never covers the words. */
+.closed .logo { position: absolute; left: 178px; top: 173px; width: 1264px; }
+.closed .sorry, .closed .big { position: absolute; left: 1560px; width: 2070px; text-align: center; white-space: nowrap; line-height: 1; }
+.closed .sorry { top: 278px; font-size: 169px; }
+.closed .big { top: 447px; font-size: 496px; margin-left: -20px; width: 2110px; }
+.closed .rule { position: absolute; left: 210px; right: 210px; top: 1265px; height: 16px; background: var(--rule); }
+.closed .info { position: absolute; left: 210px; right: 210px; top: 1300px; bottom: 190px; display: flex; flex-direction: column;
+                justify-content: space-evenly; align-items: center; text-align: center; white-space: nowrap; line-height: 1; }
+.closed .why { color: #ffd23c; }
+.closed .hours { white-space: pre; }
+.closed .web { font-size: 140px; color: var(--blue-text); }
+.closed.hasreason .web { font-size: 118px; }
+
 /* ---------- specials ---------- */
 /* Title 236px, body 184px, 80% small caps - measured from the old slides.
    Markers in the Sheet: ^ adds space after a line, ~ makes a line smaller. */
