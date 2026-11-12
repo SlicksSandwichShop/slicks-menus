@@ -22,6 +22,8 @@ body { font-family: Arial, "Liberation Sans", Helvetica, sans-serif; font-weight
 
 /* holiday overlay: a transparent 3840x2160 picture drawn over every slide */
 .overlay { position: absolute; left: 0; top: 0; width: 3840px; height: 2160px; pointer-events: none; z-index: 20; }
+/* days the building is shut (weekends): plain black, and no holiday border either */
+.slide.blank.on ~ .overlay { display: none; }
 /* shown only when a preview source cannot be read */
 .err { position: absolute; left: 200px; right: 200px; top: 800px; font-size: 90px; line-height: 120px; color: #ff6b6b; text-align: center; }
 

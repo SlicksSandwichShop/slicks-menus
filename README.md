@@ -8,6 +8,9 @@ The web page the TVs show. One page, three screens: each Pi opens it with
 - Shows **breakfast** 7:00 am - 10:00 am, **lunch** 10:00 am - 2:30 pm,
   Monday to Friday. Any other time, and any date listed as a holiday, it shows
   the **Closed screen**. (All times and days come from the Google Sheet.)
+- On days that are not in the Sheet's `open_days` (Saturday and Sunday) it shows **nothing**:
+  a plain black screen with no holiday border, because the building is shut. The page cannot
+  switch a TV off; that is the Pi's job (CEC).
 - The Closed screen is drawn live: on a date listed in the Sheet's `closed_dates` it says
   why ("CLOSED TODAY FOR THANKSGIVING", from a reason typed after the date), and it always
   says when the shop opens next and the hours. If it is switched off (`closedLive: false`
@@ -129,7 +132,7 @@ Options added to the address (nothing to do with normal running):
 |---|---|
 | `&now=2026-11-11T11:00` | Pretend it is this shop time (Wednesday 11 am) |
 | `&freeze=1` | With `now`, stop the pretend clock moving |
-| `&show=L1` | Hold one slide: `B1`..`L3`, `closed`, `extra:0`, `special:Wed` |
+| `&show=L1` | Hold one slide: `B1`..`L3`, `closed`, `blank`, `extra:0`, `special:Wed` |
 | `&grill=1` | Force the grill-closed bar |
 | `&closed=picture` | Show the fixed Closed picture instead of the live Closed screen |
 | `&data=local` / `draft` / `live` | Use exactly one data source (see Preview) |

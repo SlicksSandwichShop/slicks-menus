@@ -3,14 +3,15 @@
  *
  * What it does, in order:
  *   1. Loads the menu data (Google Sheet CSV -> last good copy -> bundled copy).
- *   2. Works out what to show from the shop clock: breakfast, lunch, or closed.
+ *   2. Works out what to show from the shop clock: breakfast, lunch, closed, or nothing
+ *      at all (a black screen) on days the shop does not open, such as the weekend.
  *   3. Rotates: one long menu slot, then the extra slide(s) for this screen.
  *   4. Keeps the three screens in step by deriving the rotation from the clock.
  *
  * URL options (the Pis only need ?screen=N):
  *   ?screen=1|2|3          which TV this is
  *   ?now=2026-11-11T11:00  pretend it is this shop time (testing)
- *   ?show=L1|B2|closed|special:Wed|extra:0   freeze on one slide (testing)
+ *   ?show=L1|B2|closed|blank|special:Wed|extra:0   freeze on one slide (testing)
  *   ?grill=1               force the grill-closed bar (testing)
  *   ?closed=picture        show the fixed Closed picture instead of the live Closed screen (testing)
  *   ?freeze=1              with ?now=, stop the fake clock from advancing (testing)
@@ -368,13 +369,17 @@
     var openDays = (c.open_days || "Mon,Tue,Wed,Thu,Fri").split(",").map(function (s) { return s.trim(); });
     var holidays = (c.closed_dates || "").split(",").map(function (s) { return s.trim(); });
     var reason = closedReason(holidays, iso, iso.slice(5));
-    return { day: day, iso: iso, listed: reason !== null, reason: reason || "", opens: openDays.indexOf(day) >= 0 && reason === null };
+    return { day: day, iso: iso, listed: reason !== null, reason: reason || "",
+             openDay: openDays.indexOf(day) >= 0, opens: openDays.indexOf(day) >= 0 && reason === null };
   }
   function schedule(now) {
     var c = data.cfg, info = dayInfo(now);
     var t = now.getUTCHours() * 60 + now.getUTCMinutes();
     var bs = mins(c.breakfast_start, 420), ls = mins(c.lunch_start, 600), gc = mins(c.grill_close, 840), cl = mins(c.close, 870);
-    var st = "closed";
+    // A day that is not in open_days (the weekend) shows nothing at all: the building is shut,
+    // so there is nobody to read a Closed screen. A listed closed date on an open day still
+    // shows Closed, because people do turn up on those.
+    var st = info.openDay ? "closed" : "off";
     if (info.opens && t >= bs && t < cl) st = t < ls ? "breakfast" : "lunch";
     return { state: st, day: info.day, grillClosed: st === "lunch" && t >= gc };
   }
@@ -473,6 +478,7 @@
   function pickSlide(now, sch) {
     var forced = Q.get("show");
     if (forced) return forced;
+    if (sch.state === "off") return "blank";
     if (sch.state === "closed") return "closed";
     var menuId = (sch.state === "breakfast" ? "B" : "L") + SCREEN;
     var extras = extrasFor(sch), c = data.cfg;
@@ -574,6 +580,7 @@
       catch (e) { console.warn("live Closed screen failed, using the picture", e); slides.closed = null; }
     }
     if (!slides.closed) slides.closed = buildImage(CFG.closedImage);
+    slides.blank = { el: el("div", "slide blank") };   // plain black, for days the building is shut
     Object.keys(slides).forEach(function (k) { stage.appendChild(slides[k].el); });
     if (season && season.overlay) {
       var ov = el("img", "overlay"); ov.src = "assets/" + season.overlay; stage.appendChild(ov);

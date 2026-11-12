@@ -3,7 +3,7 @@ breakfast_start,07:00,Breakfast menu starts (24-hour time)
 lunch_start,10:00,Lunch menu starts
 grill_close,14:00,Grill closes: the grill-closed bar appears at this time
 close,14:30,Shop closes: screens show the Closed screen
-open_days,"Mon,Tue,Wed,Thu,Fri",Days the shop is open
+open_days,"Mon,Tue,Wed,Thu,Fri",Days the shop is open. On other days the screens are black
 closed_dates,"11-11=Veterans Day,2026-11-26..2026-11-27=Thanksgiving,12-24..12-25=Christmas,01-01=New Year's Day","Days closed all day: dates like 2026-12-25, separated by commas. Add =reason after a date to show it on the Closed screen (no commas in the reason)."
 special_days,"Wed,Thu,Fri",Days the Special slide shows (lunch only)
 menu_seconds,30,How long the menu stays up before the extra slide(s)
