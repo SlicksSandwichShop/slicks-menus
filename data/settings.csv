@@ -1,5 +1,5 @@
 key,value,what_it_does
-breakfast_start,06:30,Breakfast menu starts (24-hour time)
+breakfast_start,07:00,Breakfast menu starts (24-hour time)
 lunch_start,10:00,Lunch menu starts
 grill_close,14:00,Grill closes: the grill-closed bar appears at this time
 close,14:30,Shop closes: screens show the Closed screen

@@ -373,7 +373,7 @@
   function schedule(now) {
     var c = data.cfg, info = dayInfo(now);
     var t = now.getUTCHours() * 60 + now.getUTCMinutes();
-    var bs = mins(c.breakfast_start, 390), ls = mins(c.lunch_start, 600), gc = mins(c.grill_close, 840), cl = mins(c.close, 870);
+    var bs = mins(c.breakfast_start, 420), ls = mins(c.lunch_start, 600), gc = mins(c.grill_close, 840), cl = mins(c.close, 870);
     var st = "closed";
     if (info.opens && t >= bs && t < cl) st = t < ls ? "breakfast" : "lunch";
     return { state: st, day: info.day, grillClosed: st === "lunch" && t >= gc };
@@ -384,11 +384,11 @@
   // and when it opens next, and so the hours always match the Sheet.
   var DAYNAMES = { Sun: "Sunday", Mon: "Monday", Tue: "Tuesday", Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday" };
   var MONTHNAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  function clock(m) {            // 390 -> { t: "6:30", ap: "am" }
+  function clock(m) {            // 420 -> { t: "7:00", ap: "am" }
     var h = Math.floor(m / 60), mm = m % 60;
     return { t: ((h + 11) % 12 + 1) + ":" + p2(mm), ap: h < 12 ? "am" : "pm" };
   }
-  function span(a, b) {          // "6:30 – 10:00 am", "10:00 am – 2:30 pm"
+  function span(a, b) {          // "7:00 – 10:00 am", "10:00 am – 2:30 pm"
     var x = clock(a), y = clock(b);
     return x.t + (x.ap === y.ap ? "" : " " + x.ap) + " – " + y.t + " " + y.ap;
   }
@@ -403,7 +403,7 @@
   }
   // The words for right now. Looks up to a year ahead for the next day the shop opens.
   function closedText(now) {
-    var c = data.cfg, bs = mins(c.breakfast_start, 390), ls = mins(c.lunch_start, 600), cl = mins(c.close, 870);
+    var c = data.cfg, bs = mins(c.breakfast_start, 420), ls = mins(c.lunch_start, 600), cl = mins(c.close, 870);
     var t = now.getUTCHours() * 60 + now.getUTCMinutes(), today = dayInfo(now);
     var at = clock(bs), when = "", back = "";
     for (var n = 0; n <= 370; n++) {

@@ -11,7 +11,7 @@
  *
  * Bump CACHE when you change any file under assets/ so Pis fetch the new one.
  */
-var CACHE = "slicks-menus-v4";
+var CACHE = "slicks-menus-v5";
 var SHELL = [
   "./", "index.html", "menu.css", "app.js", "config.js",
   "data/items.csv", "data/sections.csv", "data/specials.csv", "data/settings.csv", "data/seasons.csv",
