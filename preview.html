@@ -161,6 +161,14 @@
     var name = hit.e.reason || "closed date";
     tile("g-extras", 1, "show=closed&freeze=1&now=" + hit.p.iso + "T09:00", "Closed on a holiday: " + name,
       hit.p.iso + (hit.p.weekend ? " falls on a weekend, so the TVs show black that year" : "") + (sel ? "" : " (next holiday in closed_dates)"));
+    if (hit.p.weekend) return;
+    // The shop day before it: the "we'll be closed" slide, and the Closed screen that evening.
+    var t = hit.p.ms - 86400000;
+    while ([0, 6].indexOf(new Date(t).getUTCDay()) >= 0) t -= 86400000;
+    var before = isoOf(t);
+    tile("g-extras", 1, "show=notice&freeze=1&now=" + before + "T09:00", "Heads up: we'll be closed (" + name + ")",
+      "Joins every screen's rotation on the shop days before (Settings > closed_notice_days). Shown as on " + before);
+    tile("g-extras", 1, "show=closed&freeze=1&now=" + before + "T15:00", "Closed the day before " + name, before + " after closing");
   }
 
   function draw() {

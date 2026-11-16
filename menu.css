@@ -102,6 +102,17 @@ body { font-family: Arial, "Liberation Sans", Helvetica, sans-serif; font-weight
 .closed .web { font-size: 140px; color: var(--blue-text); }
 .closed.hasreason .web { font-size: 118px; }
 
+/* ---------- "we'll be closed" notice (same layout as the Closed screen) ---------- */
+.notice .logo { position: absolute; left: 178px; top: 173px; width: 1264px; }
+.notice .hu, .notice .big { position: absolute; left: 1560px; width: 2070px; text-align: center; white-space: nowrap; line-height: 1; }
+.notice .hu { top: 300px; font-size: 180px; color: #ffd23c; }
+.notice .big { top: 610px; font-size: 210px; }
+.notice .rule { position: absolute; left: 210px; right: 210px; top: 1265px; height: 16px; background: var(--rule); }
+.notice .info { position: absolute; left: 210px; right: 210px; top: 1300px; bottom: 190px; display: flex; flex-direction: column;
+                justify-content: space-evenly; align-items: center; text-align: center; white-space: nowrap; line-height: 1; }
+.notice .when { color: #ffd23c; }
+.notice .web { font-size: 118px; color: var(--blue-text); }
+
 /* ---------- specials ---------- */
 /* Title 236px, body 184px, 80% small caps - measured from the old slides.
    Markers in the Sheet: ^ adds space after a line, ~ makes a line smaller. */

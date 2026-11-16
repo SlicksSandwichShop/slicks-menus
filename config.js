@@ -31,10 +31,13 @@ window.SLICKS_CONFIG = {
   //   video   - plays from the start and stays up for its full length. Which file is set by
   //             the Sheet (settings > video, or a season); src here is only the fallback
   //   special - the day's Special (lunch only, on the days listed in Settings)
+  //   notice  - "We'll be closed" warning, only on the few shop days before a closed_dates
+  //             closure (how many: Settings > closed_notice_days). Remove it from a screen
+  //             to keep that screen from showing it.
   screens: {
-    1: [{ type: "image", src: "assets/condiments.png" }],
-    2: [{ type: "image", src: "assets/welcome.png" }],
-    3: [{ type: "video", src: "assets/videos/pepsi-pour.mp4" }, { type: "special" }]
+    1: [{ type: "image", src: "assets/condiments.png" }, { type: "notice" }],
+    2: [{ type: "image", src: "assets/welcome.png" }, { type: "notice" }],
+    3: [{ type: "video", src: "assets/videos/pepsi-pour.mp4" }, { type: "special" }, { type: "notice" }]
   },
 
   // The Closed screen. true = drawn live by the page: it says why the shop is closed today (a

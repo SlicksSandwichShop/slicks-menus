@@ -11,7 +11,8 @@
  * URL options (the Pis only need ?screen=N):
  *   ?screen=1|2|3          which TV this is
  *   ?now=2026-11-11T11:00  pretend it is this shop time (testing)
- *   ?show=L1|B2|closed|blank|special:Wed|extra:0   freeze on one slide (testing)
+ *   ?show=L1|B2|closed|blank|notice|special:Wed|extra:0   freeze on one slide (testing;
+ *                          notice needs a ?now= inside the notice days to have any words)
  *   ?grill=1               force the grill-closed bar (testing)
  *   ?closed=picture        show the fixed Closed picture instead of the live Closed screen (testing)
  *   ?freeze=1              with ?now=, stop the fake clock from advancing (testing)
@@ -423,6 +424,28 @@
     }
     var why = "";
     if (today.listed) why = today.reason ? "Closed today for " + today.reason : "Closed all day today";
+    else {
+      // After closing on a normal day: if the next weekday the shop normally opens is a listed
+      // closed date, warn about it here too ("Closed tomorrow for Thanksgiving"). A longer
+      // closure names its last day too ("Closed Monday through Friday for Thanksgiving").
+      for (var k = 1; k <= 7; k++) {
+        var nd = new Date(now.getTime() + k * 86400000), ni = dayInfo(nd);
+        if (!ni.openDay) continue;
+        if (ni.listed) {
+          var lastK = k, count = 1;
+          for (var j = k + 1; j <= k + 14; j++) {
+            var ji = dayInfo(new Date(now.getTime() + j * 86400000));
+            if (ji.opens) break;
+            if (ji.openDay && ji.listed) { lastK = j; count++; }
+          }
+          var lastDay = dayInfo(new Date(now.getTime() + lastK * 86400000)).day;
+          why = "Closed " + (k === 1 ? "tomorrow" : DAYNAMES[ni.day]) +
+            (count === 2 ? " and " + DAYNAMES[lastDay] : count > 2 ? " through " + DAYNAMES[lastDay] : "") +
+            (ni.reason ? " for " + ni.reason : "");
+        }
+        break;
+      }
+    }
     return { why: why, back: back,
              hours: openDaysText() + "  •  Breakfast " + span(bs, ls) + "  •  Lunch " + span(ls, cl) };
   }
@@ -458,6 +481,76 @@
     return { el: root, update: update };
   }
 
+  /* ---------------- the "we'll be closed" notice slide ---------------- */
+  // Warns customers ahead of a closure listed in closed_dates. It joins the rotation on the last
+  // closed_notice_days shop days before the closure (default 3; 0 turns it off), so a Thursday
+  // closure shows Mon-Wed and a Monday closure shows the Wed-Fri before. Nothing to type: the
+  // dates and reason come from closed_dates, so the notice can never disagree with the Closed screen.
+  function noticeDays() {
+    var v = parseInt(data.cfg.closed_notice_days, 10);
+    return isNaN(v) ? 3 : Math.max(0, v);
+  }
+  function upcomingClosure(now) {
+    var want = noticeDays(), shopDays = 0;
+    if (!want) return null;
+    for (var n = 1; n <= 60; n++) {
+      var d = new Date(now.getTime() + n * 86400000), info = dayInfo(d);
+      if (info.opens) { if (++shopDays >= want) return null; continue; }
+      if (!(info.openDay && info.listed)) continue;               // a weekend: skip over it
+      // Found it. Run on through every day the shop stays shut (more closed dates, weekends).
+      var first = { d: d, info: info }, last = first, back = null;
+      for (var m = n + 1; m <= n + 60; m++) {
+        var e = new Date(now.getTime() + m * 86400000), ei = dayInfo(e);
+        if (ei.opens) { back = { d: e, info: ei }; break; }
+        if (ei.openDay && ei.listed) last = { d: e, info: ei };
+      }
+      return { first: first, last: last, back: back, reason: info.reason };
+    }
+    return null;
+  }
+  function noticeText(u) {
+    function md(x) { return MONTHNAMES[x.d.getUTCMonth()].slice(0, 3).toUpperCase() + " " + x.d.getUTCDate(); }
+    function dn(x) { return DAYNAMES[x.info.day].toUpperCase(); }
+    var when;
+    if (u.first.info.iso === u.last.info.iso) when = dn(u.first) + ", " + md(u.first);
+    else if (u.last.d.getTime() - u.first.d.getTime() === 86400000)      // two days in a row
+      when = dn(u.first) + " & " + dn(u.last) + ", " +
+        (u.first.d.getUTCMonth() === u.last.d.getUTCMonth() ? md(u.first) + "–" + u.last.d.getUTCDate() : md(u.first) + " – " + md(u.last));
+    else when = dn(u.first) + ", " + md(u.first) + " – " + dn(u.last) + ", " + md(u.last);
+    if (u.reason) when += " FOR " + u.reason.toUpperCase();
+    var bs = clock(mins(data.cfg.breakfast_start, 420));
+    var back = u.back ? "BACK " + dn(u.back) + ", " + md(u.back) + " AT " + bs.t + " " + bs.ap.toUpperCase() : "";
+    return { when: when, back: back };
+  }
+  function buildNotice() {
+    var root = el("div", "slide notice");
+    var logo = el("img", "logo"); logo.src = CFG.logoImage; root.appendChild(logo);
+    root.appendChild(el("div", "hu", "HEADS UP!"));
+    root.appendChild(el("div", "big", "WE’LL BE CLOSED"));
+    root.appendChild(el("div", "rule"));
+    var info = el("div", "info"), when = el("div", "when"), back = el("div", "back");
+    info.appendChild(when); info.appendChild(back);
+    info.appendChild(el("div", "web", CFG.website || ""));
+    root.appendChild(info);
+    var last = null, pen = document.createElement("canvas").getContext("2d");
+    function set(node, text, size, room) {      // shrink a long line so it never runs off the screen
+      node.textContent = text;
+      pen.font = "bold 100px Arial, 'Liberation Sans', Helvetica, sans-serif";
+      var w = pen.measureText(text).width || 1;
+      node.style.fontSize = Math.min(size, Math.floor(room * 100 / w)) + "px";
+    }
+    function update(now) {
+      var u = upcomingClosure(now);
+      if (!u) return;
+      var x = noticeText(u), key = x.when + "|" + x.back;
+      if (key === last) return;
+      last = key;
+      set(when, x.when, 125, 3380);
+      set(back, x.back, 140, 3380);
+    }
+    return { el: root, update: update };
+  }
+
   /* ---------------- rotation ---------------- */
   // The extra slides for this screen right now, each with how long it stays up.
   // Pictures and the Special get extra_seconds; a video gets its own full length.
@@ -468,6 +561,8 @@
         var days = (data.cfg.special_days || "Wed,Thu,Fri").split(",").map(function (d) { return d.trim(); });
         var sid = "special:" + sch.day;
         if (sch.state === "lunch" && days.indexOf(sch.day) >= 0 && slides[sid]) out.push({ id: sid, secs: each, special: true });
+      } else if (x.type === "notice") {
+        if (slides.notice && upcomingClosure(shopNow())) out.push({ id: "notice", secs: each });
       } else {
         var id = "extra:" + idx, sl = slides[id];
         out.push({ id: id, secs: x.type === "video" && sl && sl.seconds ? sl.seconds : each });
@@ -553,6 +648,7 @@
     var grill = Q.get("grill") === "1" || sch.grillClosed;
     Object.keys(slides).forEach(function (k) { if (slides[k].bar) slides[k].bar.classList.toggle("on", grill); });
     if (slides.closed && slides.closed.update) slides.closed.update(now);
+    if (slides.notice) slides.notice.update(now);
     show(id);
   }
 
@@ -580,6 +676,12 @@
       catch (e) { console.warn("live Closed screen failed, using the picture", e); slides.closed = null; }
     }
     if (!slides.closed) slides.closed = buildImage(CFG.closedImage);
+    // The "we'll be closed" notice, on screens that list it in config.js (and for ?show=notice).
+    var wantsNotice = (CFG.screens[SCREEN] || []).some(function (x) { return x.type === "notice"; });
+    if (wantsNotice || Q.get("show") === "notice") {
+      try { slides.notice = buildNotice(); slides.notice.update(shopNow()); }
+      catch (e) { console.warn("closure notice failed to build, leaving it out", e); delete slides.notice; }
+    }
     slides.blank = { el: el("div", "slide blank") };   // plain black, for days the building is shut
     Object.keys(slides).forEach(function (k) { stage.appendChild(slides[k].el); });
     if (season && season.overlay) {
