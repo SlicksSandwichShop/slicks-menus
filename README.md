@@ -5,7 +5,7 @@ The web page the TVs show. One page, three screens: each Pi opens it with
 
 ## What it does
 
-- Shows **breakfast** 7:00 am - 10:00 am, **lunch** 10:00 am - 2:30 pm,
+- Shows **breakfast** 7:00 am - 10:00 am, **lunch** 10:00 am - 2:30 pm (the Closed screen advertises lunch as ending at the grill close, 2:00),
   Monday to Friday. Any other time, and any date listed as a holiday, it shows
   the **Closed screen**. (All times and days come from the Google Sheet.)
 - On days that are not in the Sheet's `open_days` (Saturday and Sunday) it shows **nothing**:
